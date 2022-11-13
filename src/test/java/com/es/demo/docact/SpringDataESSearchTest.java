@@ -6,6 +6,8 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.core.CountRequest;
+import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -48,26 +50,38 @@ public class SpringDataESSearchTest {
      * search(termQueryBuilder) 调用搜索方法，参数查询构建器对象
      */
     @Test
-    public void termQuery(){
+    public void matchQuery(){
 
         /**
          * todo： 以下是 纯elasticsearch的写法。 适应 7.4.2 7.6.2两个版本的查询
          */
         // 创建搜索请求
         SearchRequest searchRequest = new SearchRequest("product");
-        // 客户端请求
+        // 创建结果计数
+        CountRequest countRequest = new CountRequest("product");
+        // 客户端请求1
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        // 构建query,而且还是 match查询
-        searchSourceBuilder.query(QueryBuilders.matchQuery("title","小米"));
+        // 客户端请求2
+        SearchSourceBuilder countSearchSourceBuilder = new SearchSourceBuilder();
+        // todo： 构建query,而且还是 match查询 ，条件查询
+        //searchSourceBuilder.query(QueryBuilders.matchQuery("title","小米"));
+        // todo: 查询所有，默认 只返回十条
+        searchSourceBuilder.query(QueryBuilders.matchAllQuery().boost(2.0f));
+        // todo: 设置一次查询数据量的大小。es默认最多返回 1000。
+        searchSourceBuilder.size(20);
         // source方法翻译结果是：搜索请求的源，也就是设置查询请求
         searchRequest.source(searchSourceBuilder);
-        // 设置按照价格进行降序排序
+
+        countRequest.source(countSearchSourceBuilder);
+        // todo: 设置按照价格进行降序排序
         searchSourceBuilder.sort("id", SortOrder.DESC);
 
         List<Product> resultList = new ArrayList<>();
 
         try {
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            CountResponse countResponse = restHighLevelClient.count(countRequest, RequestOptions.DEFAULT);
+            System.out.println("countResponse总计个数：" + countResponse.getCount());
             RestStatus status = searchResponse.status();
             System.out.println("RestStatus: " + status);
             if (status != RestStatus.OK) {
@@ -91,7 +105,6 @@ public class SpringDataESSearchTest {
                 resultList.add(product);
             }
             System.out.println(resultList);
-            System.out.println("总共有：" + resultList.size());
 
 
         } catch (IOException e) {
@@ -114,6 +127,13 @@ public class SpringDataESSearchTest {
         //}
 
     }
+
+    @Test
+    public void matchAllQuery() {
+
+    }
+
+
 
 
 }
