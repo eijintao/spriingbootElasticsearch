@@ -53,50 +53,50 @@ public class SpringDataESSearchTest {
         /**
          * todo： 以下是 纯elasticsearch的写法。 适应 7.4.2 7.6.2两个版本的查询
          */
-        //// 创建搜索请求
-        //SearchRequest searchRequest = new SearchRequest("product");
-        //// 客户端请求
-        //SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        //// 构建query,而且还是 match查询
-        //searchSourceBuilder.query(QueryBuilders.matchQuery("title","小米"));
-        //// source方法翻译结果是：搜索请求的源，也就是设置查询请求
-        //searchRequest.source(searchSourceBuilder);
-        //// 设置按照价格进行降序排序
-        //searchSourceBuilder.sort("id", SortOrder.DESC);
-        //
-        //List<Product> resultList = new ArrayList<>();
-        //
-        //try {
-        //    SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-        //    RestStatus status = searchResponse.status();
-        //    System.out.println("RestStatus: " + status);
-        //    if (status != RestStatus.OK) {
-        //        System.out.println("return null");
-        //    }
-        //    System.out.println("searchResponse的结果是：" + searchResponse.toString());
-        //    SearchHits searchHits = searchResponse.getHits();
-        //    for (SearchHit searchHit : searchHits) {
-        //        Product product = new Product();
-        //        // 文档id
-        //        product.setId(Long.valueOf(searchHit.getId()));
-        //        //// 索引名称
-        //        //product.setIndex(searchHit.getIndex());
-        //        //// 文档得分
-        //        //product.setScore(String.valueOf(searchHit.getScore()));
-        //        Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
-        //        product.setTitle((String) sourceAsMap.get("title"));
-        //        product.setCategory((String)sourceAsMap.get("category"));
-        //        product.setImages((String)sourceAsMap.get("images"));
-        //        product.setPrice((Double)sourceAsMap.get("price"));
-        //        resultList.add(product);
-        //    }
-        //    System.out.println(resultList);
-        //    System.out.println("总共有：" + resultList.size());
-        //
-        //
-        //} catch (IOException e) {
-        //    throw new RuntimeException(e);
-        //}
+        // 创建搜索请求
+        SearchRequest searchRequest = new SearchRequest("product");
+        // 客户端请求
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        // 构建query,而且还是 match查询
+        searchSourceBuilder.query(QueryBuilders.matchQuery("title","小米"));
+        // source方法翻译结果是：搜索请求的源，也就是设置查询请求
+        searchRequest.source(searchSourceBuilder);
+        // 设置按照价格进行降序排序
+        searchSourceBuilder.sort("id", SortOrder.DESC);
+
+        List<Product> resultList = new ArrayList<>();
+
+        try {
+            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            RestStatus status = searchResponse.status();
+            System.out.println("RestStatus: " + status);
+            if (status != RestStatus.OK) {
+                System.out.println("return null");
+            }
+            System.out.println("searchResponse的结果是：" + searchResponse.toString());
+            SearchHits searchHits = searchResponse.getHits();
+            for (SearchHit searchHit : searchHits) {
+                Product product = new Product();
+                // 文档id
+                product.setId(Long.valueOf(searchHit.getId()));
+                //// 索引名称
+                //product.setIndex(searchHit.getIndex());
+                //// 文档得分
+                //product.setScore(String.valueOf(searchHit.getScore()));
+                Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
+                product.setTitle((String) sourceAsMap.get("title"));
+                product.setCategory((String)sourceAsMap.get("category"));
+                product.setImages((String)sourceAsMap.get("images"));
+                product.setPrice((Double)sourceAsMap.get("price"));
+                resultList.add(product);
+            }
+            System.out.println(resultList);
+            System.out.println("总共有：" + resultList.size());
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         System.out.println("以下是springbootElasticsearch的对数据的处理");
         /**
